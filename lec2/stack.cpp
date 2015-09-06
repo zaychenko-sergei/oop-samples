@@ -72,7 +72,7 @@ int Stack::Top () const
 	if ( IsEmpty() )
 		throw std::logic_error( "Stack is empty" );
 
-	return * m_pDataTop;
+	return *( m_pDataTop - 1);
 }
 
 
