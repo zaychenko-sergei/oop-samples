@@ -35,6 +35,8 @@ public:
 
 		int GetValue () const { return m_value;  }
 
+		int & GetValue () { return m_value; }
+
 		Node const * GetNext () const { return m_pNext; }
 
 		Node * GetNext () { return m_pNext; }
@@ -49,7 +51,7 @@ public:
 
 	/*-------------------------------------------------------------*/
 
-		const int m_value;
+		int m_value;
 
 		Node * m_pNext;
 
