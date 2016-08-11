@@ -111,17 +111,20 @@ public:
 
 	List ();
 
-	List ( std::initializer_list< T > _l );
+	template< typename U >
+	List ( std::initializer_list< U > _l );
 
-	List ( const List< T > & _l );
+	template< typename U >
+	List ( const List< U > & _l );
 
 	List ( List< T > && _l );
 
 	~List ();
 
-	List & operator = ( const List< T > & _l );
+	template< typename U >
+	List< T > & operator = ( const List< U > & _l );
 
-	List & operator = ( List< T > && _l );
+	List< T > & operator = ( List< T > && _l );
 
 /*-----------------------------------------------------------------*/
 
@@ -161,7 +164,8 @@ private:
 
 /*-----------------------------------------------------------------*/
 
-	void CopyDataFrom ( const List< T > & _l );
+	template< typename U >
+	void CopyDataFrom ( const List< U > & _l );
 
 	bool Owns ( Iterator _pos ) const;
 
@@ -191,11 +195,12 @@ List< T >::List ()
 
 
 template< typename T >
-List< T >::List ( std::initializer_list< T > _l )
+    template< typename U >
+List< T >::List ( std::initializer_list< U > _l )
 	:	List()
 {
-	for ( const T & x : _l )
-		PushBack( x );
+	for ( const U & x : _l )
+		PushBack( ( T ) x );
 }
 
 
@@ -203,7 +208,8 @@ List< T >::List ( std::initializer_list< T > _l )
 
 
 template< typename T >
-List< T >::List ( const List< T > & _l )
+	template< typename U >
+List< T >::List ( const List< U > & _l )
 	:	List()
 {
 	CopyDataFrom( _l );
@@ -227,9 +233,10 @@ List< T >::List ( List< T > && _l )
 
 
 template< typename T >
-List< T > & List< T >::operator = ( const List< T > & _l )
+	template< typename U >
+List< T > & List< T >::operator = ( const List< U > & _l )
 {
-	if ( this == & _l )
+	if ( ( const void * ) this == ( const void * ) ( & _l ) )
 		return * this;
 
 	Clear();
@@ -316,10 +323,11 @@ void List< T >::Clear ()
 
 
 template< typename T >
-void List< T >::CopyDataFrom ( const List< T > & _l )
+	template< typename U >
+void List< T >::CopyDataFrom ( const List< U > & _l )
 {
 	for ( const T & x : _l )
-		PushBack( x );
+		PushBack( ( T ) x );
 }
 
 
