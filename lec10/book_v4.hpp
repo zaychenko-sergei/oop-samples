@@ -1,21 +1,19 @@
-// (C) 2013-2015, Sergei Zaychenko, KNURE, Kharkiv, Ukraine
+// (C) 2013-2016, Sergei Zaychenko, KNURE, Kharkiv, Ukraine
 
-#ifndef _BOOK_V3_HPP_
-#define _BOOK_V3_HPP_
+#ifndef _BOOK_V4_HPP_
+#define _BOOK_V4_HPP_
 
 /*****************************************************************************/
 
+#include "unique_defeferencing_iterator.hpp"
+
 #include <string>
 #include <vector>
-#include <unordered_map>
-#include <unordered_set>
-#include <memory>
-#include <functional>
+#include <initializer_list>
 
 /*****************************************************************************/
 
 class Chapter;
-class Author;
 
 /*****************************************************************************/
 
@@ -38,27 +36,9 @@ public:
 
 	std::string const & getTitle () const;
 
-	/////
-
-	int getAuthorsCount () const;
-
-	bool hasAuthor ( Author const & _author ) const;
-
-	void addAuthor ( Author const & _author );
-
-	void removeAuthor ( Author const & _author );
-
-	void clearAuthors ();
-
-	void forEachAuthor ( std::function< void ( Author const & ) > _action ) const;
-
-	/////
-
 	int getChaptersCount () const;
 
 	bool hasChapter ( Chapter const & _chapter ) const;
-
-	Chapter const * findChapterByTitle ( std::string const & _title ) const;
 
 	void addChapter ( std::unique_ptr< Chapter > _chapter );
 
@@ -66,13 +46,48 @@ public:
 
 	void clearChapters ();
 
-	void forEachChapter ( std::function< void ( Chapter const & ) > _action ) const;
+/*-----------------------------------------------------------------*/
 
-	const Chapter * findChapter ( std::function< bool ( Chapter const & ) > _filter ) const;
+	template< typename T >
+	using Vector = std::vector< T >;
 
-	int countChaptersWith ( std::function< bool ( Chapter const & ) > _filter ) const;
+	typedef UniqueDereferencingIterator< Chapter, Vector > ChapterIterator;
 
-	bool allOf ( std::function< bool ( Chapter const & ) > _filter ) const;
+	ChapterIterator chaptersBegin () const;
+	ChapterIterator chaptersEnd () const;
+
+/*-----------------------------------------------------------------*/
+
+	class IterableChapters
+	{
+
+	/*-----------------------------------------------------------------*/
+
+	public:
+
+	/*-----------------------------------------------------------------*/
+
+		IterableChapters ( ChapterIterator _chaptersBegin, ChapterIterator _chaptersEnd )
+			: m_begin( _chaptersBegin ), m_end( _chaptersEnd )
+		{}
+
+		ChapterIterator begin () const { return m_begin; }
+		ChapterIterator end () const { return m_end; }
+
+	/*-----------------------------------------------------------------*/
+
+	private:
+
+	/*-----------------------------------------------------------------*/
+
+		ChapterIterator m_begin, m_end;
+
+	/*-----------------------------------------------------------------*/
+
+	};
+
+
+	IterableChapters chapters () const;
 
 /*-----------------------------------------------------------------*/
 
@@ -81,10 +96,6 @@ private:
 /*-----------------------------------------------------------------*/
 
 	std::vector< std::unique_ptr< Chapter > > m_chapters;
-
-	std::unordered_map< std::string, Chapter const * > m_chaptersByTitle;
-
-	std::unordered_set< Author const * > m_authors;
 
 	const std::string m_title;
 
@@ -115,13 +126,33 @@ Book::getChaptersCount () const
 
 /*****************************************************************************/
 
-inline int 
-Book::getAuthorsCount () const
+
+inline Book::ChapterIterator 
+Book::chaptersBegin () const
 {
-	return m_authors.size();
+	return m_chapters.begin();
 }
+
+
+/*****************************************************************************/
+
+inline Book::ChapterIterator 
+Book::chaptersEnd () const
+{
+	return m_chapters.end();
+}
+
 
 /*****************************************************************************/
 
 
-#endif // _BOOK_V3_HPP_
+inline Book::IterableChapters 
+Book::chapters () const
+{
+	return IterableChapters( chaptersBegin(), chaptersEnd() );
+}
+
+
+/*****************************************************************************/
+
+#endif // _BOOK_V4_HPP_

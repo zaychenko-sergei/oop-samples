@@ -1,17 +1,21 @@
-// (C) 2013-2015, Sergei Zaychenko, KNURE, Kharkiv, Ukraine
+// (C) 2013-2016, Sergei Zaychenko, KNURE, Kharkiv, Ukraine
 
-#ifndef _BOOK_HPP_
-#define _BOOK_HPP_
+#ifndef _BOOK_V7_HPP_
+#define _BOOK_V7_HPP_
 
 /*****************************************************************************/
 
 #include <string>
 #include <vector>
-#include <initializer_list>
+#include <unordered_map>
+#include <unordered_set>
+#include <memory>
+#include <functional>
 
 /*****************************************************************************/
 
 class Chapter;
+class Author;
 
 /*****************************************************************************/
 
@@ -27,32 +31,42 @@ public:
 
 	Book ( std::string const & _title );
 
-	Book ( std::string const & _title, std::initializer_list< Chapter * > _chapters );
-
-	~Book ();
-
-	Book ( const Book & ) = delete;
-	Book & operator = ( const Book & ) = delete;
+	Book ( 
+			std::string const & _title
+		,	std::initializer_list< Chapter * > _chapters 
+	);
 
 	std::string const & getTitle () const;
 
+	/////
+
+	int getAuthorsCount () const;
+
+	bool hasAuthor ( Author const & _author ) const;
+
+	void addAuthor ( Author const & _author );
+
+	void removeAuthor ( Author const & _author );
+
+	void clearAuthors ();
+
+	void forEachAuthor ( std::function< void ( Author const & ) > _action ) const;
+
+	/////
+
 	int getChaptersCount () const;
-
-	Chapter & getChapter ( int _index ) const;
-
-	int findChapterIndex ( Chapter const & _chapter ) const;
 
 	bool hasChapter ( Chapter const & _chapter ) const;
 
-	void addChapter ( Chapter * _pChapter );
+	Chapter const * findChapterByTitle ( std::string const & _title ) const;
 
-	void insertChapter ( int _atIndex, Chapter * _pChapter );
-
-	void removeChapter ( int _atIndex );
+	void addChapter ( std::unique_ptr< Chapter > _chapter );
 
 	void removeChapter ( Chapter const & _chapter );
 
 	void clearChapters ();
+
+	void forEachChapter ( std::function< void ( Chapter const & ) > _action ) const;
 
 /*-----------------------------------------------------------------*/
 
@@ -60,7 +74,11 @@ private:
 
 /*-----------------------------------------------------------------*/
 
-	std::vector< Chapter * > m_chapters;
+	std::vector< std::unique_ptr< Chapter > > m_chapters;
+
+	std::unordered_map< std::string, Chapter const * > m_chaptersByTitle;
+
+	std::unordered_set< Author const * > m_authors;
 
 	const std::string m_title;
 
@@ -91,14 +109,13 @@ Book::getChaptersCount () const
 
 /*****************************************************************************/
 
-
-inline Chapter & 
-Book::getChapter ( int _index ) const
+inline int 
+Book::getAuthorsCount () const
 {
-	return * m_chapters.at( _index );
+	return m_authors.size();
 }
-
 
 /*****************************************************************************/
 
-#endif // _BOOK_HPP_
+
+#endif // _BOOK_V7_HPP_

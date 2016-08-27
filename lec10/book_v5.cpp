@@ -2,8 +2,10 @@
 
 /*****************************************************************************/
 
-#include "book_v3.hpp"
+#include "book_v5.hpp"
 #include "chapter.hpp"
+
+#include <algorithm>
 
 /*****************************************************************************/
 
@@ -77,3 +79,63 @@ void Book::clearChapters ()
 
 /*****************************************************************************/
 
+
+void Book::forEachChapter ( std::function< void ( Chapter const & ) > _action ) const
+{
+	for ( auto const & chapterPtr : m_chapters )
+		_action( * chapterPtr );
+}
+
+
+/*****************************************************************************/
+
+
+const Chapter *
+Book::findChapter ( std::function< bool ( Chapter const & ) > _filter ) const
+{
+	auto it = std::find_if(
+					m_chapters.begin(),
+					m_chapters.end(),
+					[ & ] ( auto const & chapterPtr )
+					{
+						return _filter( * chapterPtr );
+					}
+			  );
+
+	return ( it == m_chapters.end() ) ? nullptr : it->get();
+}
+
+
+/*****************************************************************************/
+
+
+int Book::countChaptersWith ( std::function< bool ( Chapter const & ) > _filter ) const
+{
+	return std::count_if(
+				m_chapters.begin(),
+				m_chapters.end(),
+				[ & ] ( auto const & chapterPtr )
+				{
+					return _filter( *chapterPtr );
+				}
+		   );
+}
+
+
+/*****************************************************************************/
+
+
+bool Book::allOf ( std::function< bool ( Chapter const & ) > _filter ) const
+{
+	return std::all_of(
+		m_chapters.begin(),
+		m_chapters.end(),
+		[ & ] ( auto const & chapterPtr )
+		{
+			return _filter( *chapterPtr );
+		}
+	);
+}
+
+
+/*****************************************************************************/

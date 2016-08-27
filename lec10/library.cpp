@@ -5,7 +5,7 @@
 #include "library.hpp"
 #include "author.hpp"
 #include "chapter.hpp"
-#include "book_v4.hpp"
+#include "book_v7.hpp"
 
 /*****************************************************************************/
 

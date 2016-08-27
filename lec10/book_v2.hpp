@@ -7,8 +7,7 @@
 
 #include <string>
 #include <vector>
-#include <memory>
-#include <functional>
+#include <initializer_list>
 
 /*****************************************************************************/
 
@@ -28,10 +27,12 @@ public:
 
 	Book ( std::string const & _title );
 
-	Book ( 
-			std::string const & _title
-		,	std::initializer_list< Chapter * > _chapters 
-	);
+	Book ( std::string const & _title, std::initializer_list< Chapter * > _chapters );
+
+	~Book ();
+
+	Book ( const Book & ) = delete;
+	Book & operator = ( const Book & ) = delete;
 
 	std::string const & getTitle () const;
 
@@ -39,19 +40,50 @@ public:
 
 	bool hasChapter ( Chapter const & _chapter ) const;
 
-	void addChapter ( std::unique_ptr< Chapter > _chapter );
+	void addChapter ( Chapter * _pChapter );
 
 	void removeChapter ( Chapter const & _chapter );
 
 	void clearChapters ();
 
-	void forEachChapter ( std::function< void ( Chapter const & ) > _action ) const;
+/*-----------------------------------------------------------------*/
 
-	const Chapter * findChapter ( std::function< bool ( Chapter const & ) > _filter ) const;
+	typedef std::vector< Chapter * >::const_iterator ChapterIterator;
+	ChapterIterator chaptersBegin () const;
+	ChapterIterator chaptersEnd () const;
 
-	int countChaptersWith ( std::function< bool ( Chapter const & ) > _filter ) const;
+/*-----------------------------------------------------------------*/
 
-	bool allOf ( std::function< bool ( Chapter const & ) > _filter ) const;
+	class IterableChapters
+	{
+
+	/*-----------------------------------------------------------------*/
+
+	public:
+
+	/*-----------------------------------------------------------------*/
+
+		IterableChapters ( ChapterIterator _chaptersBegin, ChapterIterator _chaptersEnd )
+			: m_begin( _chaptersBegin ), m_end( _chaptersEnd )
+		{}
+
+		ChapterIterator begin () const { return m_begin; }
+		ChapterIterator end () const { return m_end; }
+
+	/*-----------------------------------------------------------------*/
+
+	private:
+
+	/*-----------------------------------------------------------------*/
+
+		ChapterIterator m_begin, m_end;
+
+	/*-----------------------------------------------------------------*/
+
+	};
+
+
+	IterableChapters chapters () const;
 
 /*-----------------------------------------------------------------*/
 
@@ -59,7 +91,7 @@ private:
 
 /*-----------------------------------------------------------------*/
 
-	std::vector< std::unique_ptr< Chapter > > m_chapters;
+	std::vector< Chapter * > m_chapters;
 
 	const std::string m_title;
 
@@ -85,6 +117,35 @@ inline int
 Book::getChaptersCount () const
 {
 	return m_chapters.size();
+}
+
+
+/*****************************************************************************/
+
+
+inline Book::ChapterIterator 
+Book::chaptersBegin () const
+{
+	return m_chapters.begin();
+}
+
+
+/*****************************************************************************/
+
+inline Book::ChapterIterator 
+Book::chaptersEnd () const
+{
+	return m_chapters.end();
+}
+
+
+/*****************************************************************************/
+
+
+inline Book::IterableChapters 
+Book::chapters () const
+{
+	return IterableChapters( chaptersBegin(), chaptersEnd() );
 }
 
 

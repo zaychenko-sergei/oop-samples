@@ -16,13 +16,31 @@ Book::Book ( std::string const & _title )
 /*****************************************************************************/
 
 
-Book::Book (
-		std::string const & _title
-	,	std::initializer_list< Chapter * > _chapters 
-)	:	m_title( _title )
+Book::Book ( std::string const & _title, std::initializer_list< Chapter * > _chapters )
+	: m_title( _title ), m_chapters( _chapters )
+{}
+
+
+/*****************************************************************************/
+
+
+Book::~Book ()
 {
-	for ( Chapter * pChapter : _chapters )
-		addChapter( std::unique_ptr< Chapter >( pChapter ) );
+	clearChapters();
+}
+
+
+/*****************************************************************************/
+
+
+int Book::findChapterIndex ( Chapter const & _chapter ) const
+{
+	int nChapters = getChaptersCount();
+	for ( int i = 0; i < nChapters; i++ )
+		if ( m_chapters[ i ] == &_chapter )
+			return i;
+
+	return -1;
 }
 
 
@@ -31,21 +49,35 @@ Book::Book (
 
 bool Book::hasChapter ( Chapter const & _chapter ) const
 {
-	int nChapters = getChaptersCount();
-	for ( int i = 0; i < nChapters; i++ )
-		if ( m_chapters[ i ].get() == &_chapter )
-			return true;
-
-	return false;
+	return findChapterIndex( _chapter ) != -1;
 }
 
 
 /*****************************************************************************/
 
 
-void Book::addChapter ( std::unique_ptr< Chapter > _chapter )
+void Book::addChapter ( Chapter * _pChapter )
 {
-	m_chapters.push_back( std::move( _chapter ) );
+	m_chapters.push_back( _pChapter );
+}
+
+
+/*****************************************************************************/
+
+
+void Book::insertChapter ( int _atIndex, Chapter * _pChapter )
+{
+	m_chapters.insert( m_chapters.begin() + _atIndex, _pChapter );
+}
+
+
+/*****************************************************************************/
+
+
+void Book::removeChapter ( int _atIndex )
+{
+	delete m_chapters.at( _atIndex );
+	m_chapters.erase( m_chapters.begin() + _atIndex );
 }
 
 
@@ -54,15 +86,11 @@ void Book::addChapter ( std::unique_ptr< Chapter > _chapter )
 
 void Book::removeChapter ( Chapter const & _chapter )
 {
-	int nChapters = getChaptersCount();
-	for ( int i = 0; i < nChapters; i++ )
-		if ( m_chapters[ i ].get() == &_chapter )
-		{
-			m_chapters.erase( m_chapters.begin() + i );
-			return;
-		}
+	int index = findChapterIndex( _chapter );
+	if ( index == -1 )
+		throw std::logic_error( "Chapter does not exists in book" );
 
-	throw std::logic_error( "Chapter does not exists in book" );
+	removeChapter( index );
 }
 
 
@@ -71,6 +99,9 @@ void Book::removeChapter ( Chapter const & _chapter )
 
 void Book::clearChapters ()
 {
+	for ( Chapter * pChapter : m_chapters )
+		delete pChapter;
+
 	m_chapters.clear();
 }
 
