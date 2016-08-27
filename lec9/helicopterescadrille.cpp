@@ -11,39 +11,20 @@
 /*****************************************************************************/
 
 
-HelicopterEscadrille::HelicopterEscadrille ( int _nMaxUnits )
-	: m_nMaxUnits( _nMaxUnits )
-{
-	if ( m_nMaxUnits < 1 )
-		throw std::logic_error( "Number of units in escadrille must be positive" );
-
-	m_pUnits = new Helicopter * [ m_nMaxUnits ];
-	memset( m_pUnits, 0, sizeof( Helicopter * ) * m_nMaxUnits );
-}
-
-
-/*****************************************************************************/
-
-
 HelicopterEscadrille::~HelicopterEscadrille ()
 {
-	for ( int i = 0; i < m_nMaxUnits; i++ )
-		delete m_pUnits[ i ];
-
-	delete[] m_pUnits;
+	for ( Helicopter * pHelicopter : m_helicopters )
+		delete pHelicopter;
 }
 
 
 /*****************************************************************************/
 
 
-Helicopter *
+Helicopter &
 HelicopterEscadrille::getHelicopter ( int _index ) const
 {
-	if ( _index >= 0 && _index < getMaxUnitsCount() )
-		return m_pUnits[ _index ];
-	else
-		throw std::logic_error( "Helicopter index is out of range" );
+	return * m_helicopters.at( _index );
 }
 
 
@@ -53,53 +34,24 @@ HelicopterEscadrille::getHelicopter ( int _index ) const
 int
 HelicopterEscadrille::findHelicopter ( const Helicopter & _helicopter ) const
 {
-	const Helicopter * pHelicopter = &_helicopter;
-	for ( int i = 0; i < m_nMaxUnits; i++ )
-		if ( m_pUnits[ i ] == pHelicopter )
+	int nHelicopters = m_helicopters.size();
+	for ( int i = 0; i < nHelicopters; i++ )
+		if ( m_helicopters[ i ] == ( &_helicopter ) )
 			return i;
 
 	return -1;
 }
 
-/*****************************************************************************/
-
-
-int HelicopterEscadrille::findFreeUnitPosition () const
-{
-	for ( int i = 0; i < m_nMaxUnits; i++ )
-		if ( !m_pUnits[ i ] )
-			return i;
-
-	return -1;
-}
 
 /*****************************************************************************/
 
 
-int HelicopterEscadrille::getJoinedUnitsCount () const
+void HelicopterEscadrille::join ( Helicopter * _pHelicopter )
 {
-	int nUnits = 0;
-	for ( int i = 0; i < m_nMaxUnits; i++ )
-		if ( m_pUnits[ i ] )
-			++nUnits;
-
-	return nUnits;
-}
-
-
-/*****************************************************************************/
-
-
-void HelicopterEscadrille::join ( Helicopter & _helicopter )
-{
-	if ( findHelicopter( _helicopter ) != -1 )
+	if ( findHelicopter( *_pHelicopter ) != -1 )
 		throw std::logic_error( "Helicopter has already joined the escadrille" );
 
-	int freePosition = findFreeUnitPosition();
-	if ( freePosition == -1 )
-		throw std::logic_error( "No free unit places left in the escadrille" );
-
-	m_pUnits[ freePosition ] = &_helicopter;
+	m_helicopters.push_back( _pHelicopter );
 }
 
 
@@ -112,7 +64,7 @@ void HelicopterEscadrille::leave ( Helicopter & _helicopter )
 	if ( position == -1 )
 		throw std::logic_error( "Helicopter is not a part of this escadrille" );
 
-	m_pUnits[ position ] = nullptr;
+	m_helicopters.erase( m_helicopters.begin() + position );
 }
 
 

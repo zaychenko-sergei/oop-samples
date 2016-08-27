@@ -12,15 +12,15 @@
 
 int main ()
 {
-	HelicopterEscadrille * pEscadrille = new HelicopterEscadrille( 3 );
+	HelicopterEscadrille * pEscadrille = new HelicopterEscadrille();
 
 	Helicopter * pHelicopter1 = new Helicopter( 1 );
 	Helicopter * pHelicopter2 = new Helicopter( 2 );
 	Helicopter * pHelicopter3 = new Helicopter( 3 );
 
-	pEscadrille->join( *pHelicopter1 );
-	pEscadrille->join( *pHelicopter2 );
-	pEscadrille->join( *pHelicopter3 );
+	pEscadrille->join( pHelicopter1 );
+	pEscadrille->join( pHelicopter2 );
+	pEscadrille->join( pHelicopter3 );
 
 	assert( pEscadrille->getJoinedUnitsCount() == 3 );
 
@@ -33,16 +33,11 @@ int main ()
 	assert( pEscadrille->getJoinedUnitsCount() == 1 );
 
 	Helicopter * pHelicopter4 = new Helicopter( 4 );
-	pEscadrille->join( *pHelicopter4 );
+	pEscadrille->join( pHelicopter4 );
 
 	assert( pEscadrille->getJoinedUnitsCount() == 2 );
-
-	assert( pEscadrille->findHelicopter( *pHelicopter4 ) == 0 );
 
 	delete pEscadrille;
 	delete pHelicopter2;
 }
-
-
-pEscadrille->onUnitDestroyed( pHelicopter1 );
 

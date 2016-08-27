@@ -5,6 +5,10 @@
 
 /*****************************************************************************/
 
+#include <vector>
+
+/*****************************************************************************/
+
 class Helicopter;
 
 /*****************************************************************************/
@@ -19,22 +23,20 @@ public:
 
 /*-----------------------------------------------------------------*/
 
-	HelicopterEscadrille ( int _nMaxUnits );
+	HelicopterEscadrille () = default;
 
 	HelicopterEscadrille ( const HelicopterEscadrille & ) = delete;
 	HelicopterEscadrille & operator = ( const HelicopterEscadrille & ) = delete;
 
 	~HelicopterEscadrille ();
 
-	int getMaxUnitsCount () const;
-
 	int getJoinedUnitsCount () const;
 
-	Helicopter * getHelicopter ( int _index ) const;
+	Helicopter & getHelicopter ( int _index ) const;
 
 	int findHelicopter ( const Helicopter & _helicopter ) const;
 
-	void join ( Helicopter & _helicopter );
+	void join ( Helicopter * _pHelicopter );
 
 	void leave ( Helicopter & _helicopter );
 
@@ -46,13 +48,7 @@ private:
 
 /*-----------------------------------------------------------------*/
 
-	int findFreeUnitPosition () const;
-
-/*-----------------------------------------------------------------*/
-
-	const int m_nMaxUnits;
-
-	Helicopter ** m_pUnits;
+	std::vector< Helicopter * > m_helicopters;
 
 /*-----------------------------------------------------------------*/
 
@@ -62,13 +58,14 @@ private:
 /*****************************************************************************/
 
 
-inline int
-HelicopterEscadrille::getMaxUnitsCount () const
+inline int 
+HelicopterEscadrille::getJoinedUnitsCount () const
 {
-	return m_nMaxUnits;
+	return m_helicopters.size();
 }
 
 
 /*****************************************************************************/
+
 
 #endif // _HELICOPTER_ESCADRILLE_HPP_
